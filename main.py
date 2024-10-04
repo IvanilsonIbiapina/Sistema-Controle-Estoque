@@ -38,16 +38,21 @@ class Produto(Banco):
         
         except sqlite3.Error as e:
             return f"Ocorreu um erro ao realizar a operação: {e}"
-
-        
+      
     def deletarProduto(self, nomeProduto):
         try:
+            self.cursor.execute("SELECT * FROM produtos WHERE nome = ?", (nomeProduto,))
+            resultado = self.cursor.fetchone()
+        
+            if resultado is None:
+                return f"O produto {nomeProduto} não foi encontrado."
             self.cursor.execute("""
                 DELETE FROM produtos WHERE nome = ?
 """, (nomeProduto, ))
+            self.conexao.commit()
             return f"Operação realizada com sucesso, {nomeProduto} foi deletado"  
-        except:
-            return "Ocorreu um erro ao realizar a operação."
+        except sqlite3.Error as e:
+            return f"Ocorreu um erro ao realizar a operação: {e}"
         
     def atualizarProduto(self, nomeProduto):
         escolha = input("Deseja alterar uma ou todas as informações do produto? \n 1 para uma alteração \n 2 para alterar todas")
@@ -85,16 +90,33 @@ class Produto(Banco):
             print("Opção inválida, tente novamente.")
 
     def listarProdutos(self):
-        self.cursor.execute("""
-            SELECT * FROM produtos        
-""")    
-        return self.cursor.fetchall()
-    
+        try:
+            self.cursor.execute("SELECT * FROM produtos")
+            resultado = self.cursor.fetchall()
+            
+            if not resultado:
+                return "Nenhum produto encontrado."
+            
+            for produto in resultado:
+                id_produto, categoria_produto, nome_produto, preco_custo, preco_venda = produto
+                print(f"\nID: {id_produto}, \nCategoria: {categoria_produto}, \nNome: {nome_produto}, \nPreço de Custo: {preco_custo}, \nPreço de Venda: {preco_venda}\n")
+            
+        except sqlite3.Error as e:
+            return f"Ocorreu um erro ao listar os produtos: {e}"
+
     def consultarProduto(self, nomeProduto):
-        self.cursor.execute("""
-            SELECT * FROM produtos WHERE nome = ?
-""", nomeProduto)
-        return self.cursor.fetchone()
+        try: 
+            self.cursor.execute("SELECT * FROM produtos WHERE nome = ?", (nomeProduto,))
+            resultado = self.cursor.fetchone()
+            # verificar se existe no banco de dados
+            if resultado is None:
+                 print(f"O produto {nomeProduto} não foi encontrado.")
+            else:
+                id_produto, categoria_produto, nome_produto, preco_custo, preco_venda = resultado
+                print(f"\nID: {id_produto}, \nCategoria: {categoria_produto}, \nNome: {nome_produto}, \nPreço de Custo: {preco_custo}, \nPreço de Venda: {preco_venda}\n")
+        # Erro de sql
+        except sqlite3.Error as e:
+            return f"Ocorreu um erro ao realizar a operação: {e}"
 
 class Estoque(Banco):
     def __init__(self, bd="estoque.db") -> None:
@@ -118,14 +140,7 @@ class Estoque(Banco):
     def remover_produto_do_estoque(self):
         pass
 
-async def limpar_tela():
-    await asyncio.sleep(2)
-    if os.name == 'nt':
-        os.system('cls') 
-    else:
-        os.system('clear')  
-
-async def menu():
+def menu():
     estoque = Estoque()
     produto = Produto()
     while True:
@@ -134,10 +149,7 @@ async def menu():
         opcao = input("Selecione a opção desejada abaixo: \n1 - Produtos \n2 - Estoque \n Sua escolha: ")
 
         if opcao == '1': # Produtos
-            
-    
-
-            entrada = input("\n1 - Cadastrar Produto \n2 - Deletar Produto \n3 - Atualizar Produto \n4 - Listar Produto \n5 - Listar todos os Produtos \nSua escolha: ")
+            entrada = input("\n1 - Cadastrar Produto \n2 - Deletar Produto \n3 - Atualizar Produto \n4 - Listar Produtos \n5 - Consultar Produto \nSua escolha: ")
             match entrada:
                 case "1":
                     categoria = str(input("Digite a categoria do produto: "))
@@ -145,19 +157,24 @@ async def menu():
                     precoCusto = float(input("Digite o preço de custo do produto: "))
                     precoVenda = float(input("Digite o preço de venda do produto: "))
                     produto.cadastrarProduto(categoria, nome, precoCusto, precoVenda)
+                    break
                 case "2":
-                    pass
+                    deletarProduto = str(input("Digite o nome do produto a ser deletado: "))
+                    produto.deletarProduto(deletarProduto)
+                    break
                 case "3":
                     pass
                 case "4":
-                    pass
+                    produto.listarProdutos()
                 case "5":
-                    pass
+                    consulta = input("Digite o nome do produto a ser consultado: ")
+                    print(produto.consultarProduto(consulta))
+                    break
         elif opcao == '2': # Estoque
             pass
         else:
             print("Opção inválida")
-        return await limpar_tela()
+       # return await limpar_tela()
 
 if __name__ == '__main__':
-    asyncio.run(menu())
+    menu()
