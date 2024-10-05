@@ -107,7 +107,7 @@ class Produto(Banco):
             resultado = self.cursor.fetchone()
             # verificar se existe no banco de dados
             if resultado is None:
-                 print(f"O produto {nomeProduto} não foi encontrado.")
+                print(f"O produto {nomeProduto} não foi encontrado.")
             else:
                 id_produto, categoria_produto, nome_produto, preco_custo, preco_venda = resultado
                 print(f"\nID: {id_produto}, \nCategoria: {categoria_produto}, \nNome: {nome_produto}, \nPreço de Custo: {preco_custo}, \nPreço de Venda: {preco_venda}\n")
