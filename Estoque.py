@@ -1,5 +1,5 @@
 import sqlite3
-from database import Banco
+from Database import Banco
 
 class Estoque(Banco):
     def __init__(self, bd="banco_de_dados.db") -> None:
@@ -100,6 +100,45 @@ class Estoque(Banco):
         
         return True # Retorna se o produto estiver no estoque
 
-    
     def consultarEstoque(self):
-        pass
+        try:
+            consulta = self.cursor.execute("""
+                SELECT p.nome, p.preco_custo, p.preco_de_venda, e.quantidade FROM produtos AS p 
+                INNER JOIN estoque AS e ON p.id = fk_id_produto
+    """).fetchall()
+            if consulta is None:
+                return "Nenhum produto encontrado"
+            for produto in consulta:
+                lucro = (produto[2] - produto[1]) * produto[3]
+                print(f"Produto: {produto[0]}")
+                print(f"Preço de Custo: {produto[1]}")
+                print(f"Preço de Venda: {produto[2]}")
+                print(f"Quantidade no Estoque: {produto[3]}")
+                print(f"Lucro Esperado: {lucro}")
+                print("---------------")
+            return "Esses são os produtos no estoque"
+        except SystemError as e:
+            return f"Erro ao realizar consulta devido: {e}"
+
+    def consultar_produto_no_estoque(self, nomeProduto):
+        idProduto = self.pegarIdProduto(nomeProduto)
+        if idProduto is None:
+            return "Produto não cadastrado no sistema."
+        try: 
+            consulta = self.cursor.execute("""
+            SELECT p.nome, p.preco_custo, p.preco_de_venda, e.quantidade FROM produtos AS p 
+            INNER JOIN estoque AS e ON p.id = fk_id_produto WHERE p.id = ?
+""", (idProduto, )).fetchone()
+            if consulta is None:
+                return "Produto não cadastrado no estoque."
+            lucro = (consulta[2] - consulta[1]) * consulta[3]
+            print(f"Produto: {consulta[0]}")
+            print(f"Preço de Custo: {consulta[1]}")
+            print(f"Preço de Venda: {consulta[2]}")
+            print(f"Quantidade no Estoque: {consulta[3]}")
+            print(f"Lucro Esperado: {lucro}")
+            print("---------------")
+            return "Esses são os dados do produto consultado."
+        except sqlite3.Error as e:
+            return f"Ocorreu um erro ao realizar a operação: {e}"
+

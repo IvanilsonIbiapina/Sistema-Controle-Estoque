@@ -22,29 +22,25 @@ def main():
                     precoVenda = float(input("Digite o preço de venda do produto: "))
                     mensagem = produto.cadastrarProduto(categoria, nome, precoCusto, precoVenda)
                     print(mensagem)
-                    break
                 case "2":
                     deletarProduto = str(input("Digite o nome do produto a ser deletado: "))
                     mensagem = produto.deletarProduto(deletarProduto)
                     print(mensagem)
-                    break
                 case "3":
                     update = input("Digite o nome do produto a ser alterado: ")
                     mensagem = produto.atualizarProduto(update)
                     print(mensagem)
-                    break
                 case "4":
                     mensagem = produto.listarProdutos()
                     print(mensagem)
-                    break
                 case "5":
                     consulta = input("Digite o nome do produto a ser consultado: ")
                     print(produto.consultarProduto(consulta))
-                    break
                 case '_':
                     print("Opção inválida.")
         elif opcao == '2': # Estoque
-            entrada = input("1 - Adicionar produto ao estoque \n2 - Remover produto do estoque \n3 - Consultar Estoque \n4 - Consultar produto no estoque \nOpção desejada: ")
+            entrada = input("1 - Adicionar produto ao estoque \n2 - Remover produto do estoque \n3 - Consultar Estoque \n4 - Consultar produto no estoque \nOpção desejada:")
+            print()
             match entrada:
                 case '1':
                     produtoAdd = input("Digite o nome do produto que deseja adicionar ao estoque: ")
@@ -57,18 +53,19 @@ def main():
                     mensagem = estoque.remover_produto_do_estoque(produtoRemove, quantidade)
                     print(mensagem)
                 case '3':
-                    pass
+                    mensagem = estoque.consultarEstoque()
+                    print(mensagem)
                 case '4':
-                    pass
-                case '5':
-                    pass
+                    produtoConsulta = input("Digite o produto que deseja consultar: ")
+                    mensagem = estoque.consultar_produto_no_estoque(produtoConsulta)
+                    print(mensagem)
                 case '_':
                     print("Opção inválida.")
         elif opcao == '0':
             print('\n Programa encerrando...')
-            break
         else:
             print("Opção inválida")
+            break
 
 if __name__ == '__main__':
     main()

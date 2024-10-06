@@ -1,5 +1,5 @@
 import sqlite3
-from database import Banco
+from Database import Banco
 
 class Produto(Banco):
     def __init__(self,  bd="banco_de_dados.db") -> None:
